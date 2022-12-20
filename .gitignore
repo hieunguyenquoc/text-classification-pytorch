@@ -39,6 +39,7 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+model/model_RNN_Glove.ckpt
 glove.6B.50d.txt
 glove.6B.300d.txt
 
