@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from load_pretrain_embedded import load_pretrain_embedded
+from src.load_pretrain_embedded import load_pretrain_embedded
 
 class TextClassification(nn.Module):
     def __init__(self,args):
@@ -33,10 +33,13 @@ class TextClassification(nn.Module):
             out_features : size of output
         '''
     def forward(self,x):
-
+        if torch.cuda.is_available():
+            device = "cuda:0"
+        else:
+            device = "cpu"
         #define hidden state and cell state as 0 at the beginning
-        h = torch.zeros((self.LTSM_layer, x.size(0),self.hidden_dim))
-        c = torch.zeros((self.LTSM_layer, x.size(0),self.hidden_dim))
+        h = torch.zeros((self.LTSM_layer, x.size(0),self.hidden_dim),device=device)
+        c = torch.zeros((self.LTSM_layer, x.size(0),self.hidden_dim),device=device)
 
         #Initialization fo hidden and cell states
 

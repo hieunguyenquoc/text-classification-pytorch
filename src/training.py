@@ -26,12 +26,19 @@ class DataMapper(Dataset): #DataSet provied an way to iterate by batch(handle da
 class Exucuate:
     def __init__(self,args):
         self.__init_data__(args)
+        if torch.cuda.is_available():
+            self.device = "cuda:0"
+            print("Run on GPU")
+        else:
+            self.device = "cpu"
+            print("Run on CPU")
+        
 
         self.args = args
         self.batch_size = args.batch_size
 
         self.model = TextClassification(args)
-    
+        self.model.to(self.device)
     #define preprocess data
     def __init_data__(self,args):
 
@@ -66,13 +73,8 @@ class Exucuate:
         optimizer = optim.RMSprop(self.model.parameters(), lr=args.learning_rate)
         print(self.model)
 
-        if torch.cuda.is_available():
-            device = "gpu"
-        else :
-            device = "cpu"
-        
         #set model to cpu or gpu
-        self.model.to(device)
+        
         #train procedure
         for epoch in range(args.epochs):
             
@@ -87,6 +89,8 @@ class Exucuate:
                 #get data type to tensor
                 x = x_batch.type(torch.LongTensor)
                 y = y_batch.type(torch.FloatTensor).unsqueeze(1)
+                x = x.to(self.device)
+                y = y.to(self.device)
                 #train
                 y_pred = self.model(x)
                 
@@ -101,9 +105,9 @@ class Exucuate:
 
                 optimizer.step()
 
-                prediction += list(y_pred.squeeze().detach().numpy())
+                prediction += list(y_pred.cpu().squeeze().detach().numpy())
         #test prediction result
-        torch.save(self.model,"model/model_RNN_Glove.ckpt")
+        torch.save(self.model.state_dict(),"model/model_RNN_Glove.pt")
 
         test_prediction = self.evaluation()
 
@@ -125,9 +129,11 @@ class Exucuate:
                 
                 x = x_batch.type(torch.LongTensor)
                 y = y_batch.type(torch.FloatTensor)
+                x = x.to(self.device)
+                y = x.to(self.device)
                 print(np.shape(x))
                 y_pred = self.model(x)
-                prediction += list(y_pred.detach().numpy())
+                prediction += list(y_pred.cpu().detach().numpy())
         #print(prediction)
         return prediction
     
