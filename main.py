@@ -2,7 +2,7 @@ import torch
 from src.preprocess import Preprocessing
 from src.model import TextClassification
 from src.parser_data import parameter_parser
-import numpy as np
+# import numpy as np
 from fastapi import FastAPI
 import uvicorn
 
